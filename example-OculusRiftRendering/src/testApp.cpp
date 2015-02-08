@@ -107,6 +107,7 @@ void testApp::draw()
 
     if(oculusRift.isSetup()){
 
+		TS_START("overlay");
         if(showOverlay){
 
             oculusRift.beginOverlay(hudZ, hudW, hudH);
@@ -115,10 +116,9 @@ void testApp::draw()
             TIME_SAMPLE_GET_INSTANCE()->draw(0,0);
 
             RUI_GET_INSTANCE()->draw(20, hudH - 20);
-            ofEnableDepthTest();
-            ofEnableLighting();
             oculusRift.endOverlay();
         }
+		TS_STOP("overlay");
 
         ofSetColor(255);
         glEnable(GL_DEPTH_TEST);
@@ -134,8 +134,12 @@ void testApp::draw()
 
         glDisable(GL_DEPTH_TEST);
 
-        oculusRift.draw();
         TS_STOP("eyes Draw");
+
+		TS_START("draw Rift");
+        oculusRift.draw();
+		TS_STOP("draw Rift");
+
 
     }
     else{
@@ -150,6 +154,7 @@ void testApp::draw()
 void testApp::drawScene()
 {
 
+	TS_START_ACC("drawScene");
     ofPushMatrix();
     ofRotate(90, 0, 0, -1);
     ofDrawGridPlane(2500.0f, 50.0f, false );
@@ -184,7 +189,7 @@ void testApp::drawScene()
     }
 
     ofPopStyle();
-
+	TS_STOP_ACC("drawScene");
 }
 
 //--------------------------------------------------------------

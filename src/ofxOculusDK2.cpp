@@ -735,7 +735,8 @@ void ofxOculusDK2::draw(){
         debugImage.saveImage("debug.png");
         done_debug=1;
     }
-    
+
+	
     ovrHmd_EndFrame(hmd, headPose, EyeTexture);
 
     if (!ofIsGLProgrammableRenderer())
