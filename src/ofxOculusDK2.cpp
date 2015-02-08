@@ -369,6 +369,16 @@ void ofxOculusDK2::reset(){
 	}
 }
 
+ofMatrix4x4 ofxOculusDK2::getOrientationMat(){
+
+	//return toOf(Matrix4f(pFusionResult->GetPredictedOrientation()));
+	ovrTrackingState ts = ovrHmd_GetTrackingState(hmd, ovr_GetTimeInSeconds());
+	if (ts.StatusFlags & (ovrStatus_OrientationTracked | ovrStatus_PositionTracked)){
+		return toOf( Matrix4f(ts.HeadPose.ThePose.Orientation));
+	}
+    return ofMatrix4x4();
+}
+
 ofQuaternion ofxOculusDK2::getOrientationQuat(){
 //	return toOf(pFusionResult->GetPredictedOrientation());
 
@@ -414,6 +424,9 @@ void ofxOculusDK2::setupEyeParams(ovrEyeType eye){
 	ofSetMatrixMode(OF_MATRIX_PROJECTION);
 	ofLoadIdentityMatrix();
 	ofLoadMatrix( getProjectionMatrix(eye) );
+
+	orientationMatrix = getOrientationMat();
+
     
 	ofSetMatrixMode(OF_MATRIX_MODELVIEW);
 	ofLoadIdentityMatrix();

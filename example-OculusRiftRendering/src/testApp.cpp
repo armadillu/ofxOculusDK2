@@ -19,6 +19,8 @@ void testApp::setup()
     RUI_GET_INSTANCE()->setShowUIDuringEdits(true); //always show UI/HUD, even when editing
     RUI_NEW_GROUP("OVERLAYfg");
 	RUI_SHARE_PARAM(showOverlay);
+	RUI_SHARE_PARAM(showOverlay);
+	RUI_SHARE_PARAM_WCN("unlockHudFromView", oculusRift.lockView);
     RUI_SHARE_PARAM(hudW, 200, 1920);
     RUI_SHARE_PARAM(hudH, 120, 1080);
     RUI_SHARE_PARAM(hudZ, -1300, 200);
@@ -64,9 +66,9 @@ void testApp::setup()
     TIME_SAMPLE_GET_INSTANCE()->setAutoDraw(false);
     TIME_SAMPLE_GET_INSTANCE()->setDesiredFrameRate(75);
 
-	//enable mouse;
-    cam.begin();
-    cam.end();
+//	//enable mouse;
+//    cam.begin();
+//    cam.end();
 }
 
 
