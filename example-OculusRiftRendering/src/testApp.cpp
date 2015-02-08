@@ -1,65 +1,93 @@
 #include "testApp.h"
+#include "ofxTimeMeasurements.h"
+#include "ofxRemoteUIServer.h"
 
 //--------------------------------------------------------------
 void testApp::setup()
 {
-	ofBackground(0);
-	ofSetLogLevel( OF_LOG_VERBOSE );
-	ofSetVerticalSync( true );
+    ofBackground(0);
+    //ofSetLogLevel( OF_LOG_VERBOSE );
+    ofSetVerticalSync( true );
+    ofSetFrameRate(75);
+    ofSetFullscreen(true);
 
-//    ofSetWindowPosition(1920, 0);
-//    ofToggleFullscreen();
-	showOverlay = false;
-	predictive = true;
-	
-	ofHideCursor();
-	
-	oculusRift.baseCamera = &cam;
-	oculusRift.setup();
-	
-	for(int i = 0; i < 20; i++){
-		DemoSphere d;
-		d.color = ofColor(ofRandom(255),
-						  ofRandom(255),
-						  ofRandom(255));
-		
-		d.pos = ofVec3f(ofRandom(-500, 500),0,ofRandom(-500,500));
-		
-		d.floatPos.x = d.pos.x;
-		d.floatPos.z = d.pos.z;
-		
-		d.radius = ofRandom(2, 50);
-        
+    RUI_SETUP();
+    hudW = 320;
+    hudH = 240;
+    hudZ = -230;
+    RUI_GET_INSTANCE()->setAutoDraw(false);
+    RUI_GET_INSTANCE()->setShowUIDuringEdits(true); //always show UI/HUD, even when editing
+    RUI_NEW_GROUP("OVERLAYfg");
+	RUI_SHARE_PARAM(showOverlay);
+    RUI_SHARE_PARAM(hudW, 200, 1920);
+    RUI_SHARE_PARAM(hudH, 120, 1080);
+    RUI_SHARE_PARAM(hudZ, -1300, 200);
+
+    RUI_LOAD_FROM_XML();
+
+	//    ofSetWindowPosition(1920, 0);
+	//    ofToggleFullscreen();
+    showOverlay = true;
+    predictive = true;
+    ofSetSphereResolution(10);
+
+    ofHideCursor();
+
+    //glEnable(GL_FOG);
+
+    oculusRift.baseCamera = &cam;
+    oculusRift.setup();
+	oculusRift.dismissSafetyWarning();
+
+    cam.setPosition(0, 50, 100);
+    cam.lookAt(ofVec3f());
+
+    for(int i = 0; i < 100; i++){
+        DemoSphere d;
+        d.color = ofColor(ofRandom(255),
+                          ofRandom(255),
+                          ofRandom(255));
+
+        d.pos = ofVec3f(ofRandom(-500, 500),0,ofRandom(-500,500));
+
+        d.floatPos.x = d.pos.x;
+        d.floatPos.z = d.pos.z;
+
+        d.radius = 20;
+
         d.bMouseOver = false;
         d.bGazeOver  = false;
-        
-		demos.push_back(d);
-	}
-	
+
+        demos.push_back(d);
+    }
+
+    TIME_SAMPLE_GET_INSTANCE()->setAutoDraw(false);
+    TIME_SAMPLE_GET_INSTANCE()->setDesiredFrameRate(75);
+
 	//enable mouse;
-	cam.begin();
-	cam.end();
+    cam.begin();
+    cam.end();
 }
 
 
 //--------------------------------------------------------------
 void testApp::update()
 {
-	for(int i = 0; i < demos.size(); i++){
-		demos[i].floatPos.y = ofSignedNoise(ofGetElapsedTimef()/10.0,
-									  demos[i].pos.x/100.0,
-									  demos[i].pos.z/100.0,
-									  demos[i].radius*100.0) * demos[i].radius*20.;
-		
-	}
-    
+    for(int i = 0; i < demos.size(); i++){
+        demos[i].floatPos.y = ofSignedNoise(ofGetElapsedTimef()/10.0,
+											demos[i].pos.x/100.0,
+											demos[i].pos.z/100.0,
+											demos[i].radius*100.0) * demos[i].radius*20.;
+
+    }
+
     if(oculusRift.isSetup()){
         ofRectangle viewport = oculusRift.getOculusViewport();
         for(int i = 0; i < demos.size(); i++){
             // mouse selection
-			float mouseDist = oculusRift.distanceFromMouse(demos[i].floatPos);
+            float mouseDist = oculusRift.distanceFromMouse(demos[i].floatPos);
             demos[i].bMouseOver = (mouseDist < 50);
-            
+
             // gaze selection
             ofVec3f screenPos = oculusRift.worldToScreen(demos[i].floatPos, true);
             float gazeDist = ofDist(screenPos.x, screenPos.y,
@@ -74,73 +102,62 @@ void testApp::update()
 void testApp::draw()
 {
 
-	
-	if(oculusRift.isSetup()){
-		
-		if(showOverlay){
-			
-			oculusRift.beginOverlay(-230, 320,240);
-			ofRectangle overlayRect = oculusRift.getOverlayRectangle();
-			
-			ofPushStyle();
-			ofEnableAlphaBlending();
-			ofFill();
-			ofSetColor(255, 40, 10, 200);
-			
-			ofRect(overlayRect);
-			
-			ofSetColor(255,255);
-			ofFill();
-			ofDrawBitmapString("ofxOculusRift by\nAndreas Muller\nJames George\nJason Walters\nElie Zananiri\nFPS:"+ofToString(ofGetFrameRate())+"\nPredictive Tracking " + (oculusRift.getUsePredictiveOrientation() ? "YES" : "NO"), 40, 40);
-            
-            ofSetColor(0, 255, 0);
-            ofNoFill();
-            ofCircle(overlayRect.getCenter(), 20);
-			
-			ofPopStyle();
-			oculusRift.endOverlay();
-		}
-        
+
+    if(oculusRift.isSetup()){
+
+        if(showOverlay){
+
+            oculusRift.beginOverlay(hudZ, hudW, hudH);
+            ofRectangle overlayRect = oculusRift.getOverlayRectangle();
+            TIME_SAMPLE_GET_INSTANCE()->setPlotBaseY(hudH);
+            TIME_SAMPLE_GET_INSTANCE()->draw(0,0);
+
+            RUI_GET_INSTANCE()->draw(20, hudH - 20);
+            ofEnableDepthTest();
+            ofEnableLighting();
+            oculusRift.endOverlay();
+        }
+
         ofSetColor(255);
-		glEnable(GL_DEPTH_TEST);
+        glEnable(GL_DEPTH_TEST);
 
+        TS_START("eyes Draw");
+        oculusRift.beginLeftEye();
+        drawScene();
+        oculusRift.endLeftEye();
 
-		oculusRift.beginLeftEye();
-		drawScene();
-		oculusRift.endLeftEye();
-		
-		oculusRift.beginRightEye();
-		drawScene();
-		oculusRift.endRightEye();
-		
-		oculusRift.draw();
-		
-		glDisable(GL_DEPTH_TEST);
+        oculusRift.beginRightEye();
+        drawScene();
+        oculusRift.endRightEye();
+
+        glDisable(GL_DEPTH_TEST);
+
+        oculusRift.draw();
+        TS_STOP("eyes Draw");
+
     }
-	else{
-		cam.begin();
-		drawScene();
-		cam.end();
-	}
-	
+    else{
+        cam.begin();
+        drawScene();
+        cam.end();
+    }
+
 }
 
 //--------------------------------------------------------------
 void testApp::drawScene()
 {
-	
-	ofPushMatrix();
-	ofRotate(90, 0, 0, -1);
-	ofDrawGridPlane(500.0f, 10.0f, false );
-	ofPopMatrix();
-	
-	ofPushStyle();
-	ofNoFill();
-	for(int i = 0; i < demos.size(); i++){
-		ofPushMatrix();
-//		ofRotate(ofGetElapsedTimef()*(50-demos[i].radius), 0, 1, 0);
-		ofTranslate(demos[i].floatPos);
-//		ofRotate(ofGetElapsedTimef()*4*(50-demos[i].radius), 0, 1, 0);
+
+    ofPushMatrix();
+    ofRotate(90, 0, 0, -1);
+    ofDrawGridPlane(2500.0f, 50.0f, false );
+    ofPopMatrix();
+    light.enable();
+
+    ofPushStyle();
+    for(int i = 0; i < demos.size(); i++){
+        ofPushMatrix();
+        ofTranslate(demos[i].floatPos);
 
         if (demos[i].bMouseOver)
             ofSetColor(ofColor::white.getLerped(ofColor::red, sin(ofGetElapsedTimef()*10.0)*.5+.5));
@@ -149,62 +166,60 @@ void testApp::drawScene()
         else
             ofSetColor(demos[i].color);
 
-		ofSphere(demos[i].radius);
-		ofPopMatrix();
-	}
-    
-	
-	
-	//billboard and draw the mouse
-	if(oculusRift.isSetup()){
-		
-		ofPushMatrix();
-		oculusRift.multBillboardMatrix();
-		ofSetColor(255, 0, 0);
-		ofCircle(0,0,.5);
-		ofPopMatrix();
+        ofSphere(demos[i].radius);
+        ofPopMatrix();
+    }
 
-	}
-	
-	ofPopStyle();
-    
+    ofDrawAxis(50);
+
+    //billboard and draw the mouse
+    if(oculusRift.isSetup()){
+        ofPushMatrix();
+        oculusRift.multBillboardMatrix();
+        ofSetColor(255, 0, 0);
+        ofCircle(0,0,.5);
+        ofPopMatrix();
+    }
+
+    ofPopStyle();
+
 }
 
 //--------------------------------------------------------------
 void testApp::keyPressed(int key)
 {
-	if( key == 'f' )
-	{
-		//gotta toggle full screen for it to be right
-		ofToggleFullscreen();
-	}
-	
-	if(key == 's'){
-		oculusRift.reloadShader();
-	}
-	
-	if(key == 'l'){
-		oculusRift.lockView = !oculusRift.lockView;
-	}
-	
-	if(key == 'o'){
-		showOverlay = !showOverlay;
-	}
-	if(key == 'r'){
-		oculusRift.reset();
-		
-	}
-	if(key == 'h'){
-		ofHideCursor();
-	}
-	if(key == 'H'){
-		ofShowCursor();
-	}
-	
-	if(key == 'p'){
-		predictive = !predictive;
-		oculusRift.setUsePredictedOrientation(predictive);
-	}
+    if( key == 'f' )
+    {
+        //gotta toggle full screen for it to be right
+        ofToggleFullscreen();
+    }
+
+    if(key == 's'){
+        oculusRift.reloadShader();
+    }
+
+    if(key == 'l'){
+        oculusRift.lockView = !oculusRift.lockView;
+    }
+
+    if(key == 'o'){
+        showOverlay = !showOverlay;
+    }
+    if(key == 'r'){
+        oculusRift.reset();
+
+    }
+    if(key == 'h'){
+        ofHideCursor();
+    }
+    if(key == 'H'){
+        ofShowCursor();
+    }
+
+    if(key == 'p'){
+        predictive = !predictive;
+        oculusRift.setUsePredictedOrientation(predictive);
+    }
 }
 
 //--------------------------------------------------------------
@@ -216,13 +231,13 @@ void testApp::keyReleased(int key)
 //--------------------------------------------------------------
 void testApp::mouseMoved(int x, int y)
 {
- //   cursor2D.set(x, y, cursor2D.z);
+	//   cursor2D.set(x, y, cursor2D.z);
 }
 
 //--------------------------------------------------------------
 void testApp::mouseDragged(int x, int y, int button)
 {
-//    cursor2D.set(x, y, cursor2D.z);
+	//    cursor2D.set(x, y, cursor2D.z);
 }
 
 //--------------------------------------------------------------

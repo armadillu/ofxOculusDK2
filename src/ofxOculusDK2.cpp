@@ -522,7 +522,7 @@ void ofxOculusDK2::beginLeftEye(){
 	insideFrame = true;
 
 	renderTarget.begin();
-	ofClear(0,0,255);
+	ofClear(0,0,0);
 	
 	ofPushView();
 	ofPushMatrix();
@@ -572,7 +572,6 @@ void ofxOculusDK2::renderOverlay(){
 	glPushAttrib(GL_ALL_ATTRIB_BITS);
 	glDisable(GL_LIGHTING);
 	ofDisableDepthTest();
-
 	
 	if(baseCamera != NULL){
 		ofTranslate(baseCamera->getPosition());
@@ -582,7 +581,7 @@ void ofxOculusDK2::renderOverlay(){
 			ofMultMatrix(baseRotation);
 		}
 		else {
-			ofMultMatrix(orientationMatrix*baseRotation);
+			ofMultMatrix(orientationMatrix * baseRotation);
 		}
 	}
 	
