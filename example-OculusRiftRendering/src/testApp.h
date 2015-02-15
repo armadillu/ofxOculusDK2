@@ -49,5 +49,5 @@ public:
     ofVec3f cursorGaze;
 
     float hudZ;
-    float hudW, hudH;
+    int hudW, hudH;
 };

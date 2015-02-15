@@ -167,11 +167,10 @@ ofxOculusDK2::~ofxOculusDK2(){
 
 bool ofxOculusDK2::setup(){
 	ofFbo::Settings settings;
-	//settings.numSamples = 4;
-    settings.numSamples = 0;
+	settings.numSamples = 4;
 	settings.internalformat = GL_RGBA;
     settings.useDepth = true;
-    settings.textureTarget = GL_TEXTURE_2D;
+    settings.textureTarget = GL_TEXTURE_RECTANGLE_ARB;
     settings.minFilter = GL_LINEAR;
     settings.maxFilter = GL_LINEAR;
     settings.wrapModeHorizontal = GL_CLAMP_TO_EDGE;
@@ -465,7 +464,7 @@ void ofxOculusDK2::reloadShader(){
         }
         //otherwise we load the hardcoded one
         else{
-            cout << OculusWarpVert << endl<<endl<<endl;
+            cout << OculusWarpVert << endl << endl << endl;
             cout << OculusWarpFrag << endl;
             distortionShader.setupShaderFromSource(GL_VERTEX_SHADER, OculusWarpVert);
             distortionShader.setupShaderFromSource(GL_FRAGMENT_SHADER, OculusWarpFrag);
@@ -490,28 +489,28 @@ void ofxOculusDK2::endBackground(){
     backgroundTarget.end();
 }
 
-void ofxOculusDK2::beginOverlay(float overlayZ, float width, float height){
+void ofxOculusDK2::beginOverlay(float overlayZ, int width, int height){
 	bUseOverlay = true;
 	overlayZDistance = overlayZ;
 	
 	if(overlayTarget.getWidth() != width || overlayTarget.getHeight() != height){
 		overlayTarget.allocate(width, height, GL_RGBA, 4);
-	}
-	
-	overlayMesh.clear();
-	ofRectangle overlayrect = ofRectangle(-width/2,-height/2,width,height);
-	overlayMesh.addVertex( ofVec3f(overlayrect.getMinX(), overlayrect.getMinY(), overlayZ) );
-	overlayMesh.addVertex( ofVec3f(overlayrect.getMaxX(), overlayrect.getMinY(), overlayZ) );
-	overlayMesh.addVertex( ofVec3f(overlayrect.getMinX(), overlayrect.getMaxY(), overlayZ) );
-	overlayMesh.addVertex( ofVec3f(overlayrect.getMaxX(), overlayrect.getMaxY(), overlayZ) );
 
-	overlayMesh.addTexCoord( ofVec2f(0, height ) );
-	overlayMesh.addTexCoord( ofVec2f(width, height) );
-	overlayMesh.addTexCoord( ofVec2f(0,0) );
-	overlayMesh.addTexCoord( ofVec2f(width, 0) );
-	
-	overlayMesh.setMode(OF_PRIMITIVE_TRIANGLE_STRIP);
-	
+		overlayMesh.clear();
+		ofRectangle overlayrect = ofRectangle(-width/2,-height/2,width,height);
+		overlayMesh.addVertex( ofVec3f(overlayrect.getMinX(), overlayrect.getMinY(), overlayZ) );
+		overlayMesh.addVertex( ofVec3f(overlayrect.getMaxX(), overlayrect.getMinY(), overlayZ) );
+		overlayMesh.addVertex( ofVec3f(overlayrect.getMinX(), overlayrect.getMaxY(), overlayZ) );
+		overlayMesh.addVertex( ofVec3f(overlayrect.getMaxX(), overlayrect.getMaxY(), overlayZ) );
+
+		overlayMesh.addTexCoord( ofVec2f(0, height ) );
+		overlayMesh.addTexCoord( ofVec2f(width, height) );
+		overlayMesh.addTexCoord( ofVec2f(0,0) );
+		overlayMesh.addTexCoord( ofVec2f(width, 0) );
+
+		overlayMesh.setMode(OF_PRIMITIVE_TRIANGLE_STRIP);
+	}
+
 	overlayTarget.begin();
     ofClear(0.0, 0.0, 0.0, 0.0);
 	
@@ -732,10 +731,11 @@ ofVec2f ofxOculusDK2::gazePosition2D(){
 void ofxOculusDK2::draw(){
 
 	if(!bSetup) return;
-	
 	if(!insideFrame) return;
+	static bool saveFrame = false;
 
-    if ( ofGetKeyPressed('D') ) {
+    if ( saveFrame ) {
+		saveFrame = false;
         ofPixels dp;
         renderTarget.readToPixels(dp);
         debugImage.setFromPixels(dp);
@@ -753,8 +753,8 @@ void ofxOculusDK2::draw(){
 
 		ovr_WaitTillTime(frameTiming.TimewarpPointSeconds);
 
-//		///JG START HERE
-//		// Prepare for distortion rendering.
+		///JG START HERE
+		// Prepare for distortion rendering.
 		ofDisableDepthTest();
 		ofEnableAlphaBlending();
 		distortionShader.begin();
@@ -784,6 +784,7 @@ void ofxOculusDK2::draw(){
 		/////////////////////
 		ovrHmd_EndFrameTiming(hmd);
 
+		//debug see our scene
 		//renderTarget.draw(0,0);
 
 	#endif
