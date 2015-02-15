@@ -12,7 +12,7 @@
 
 #include <stdio.h>  // XXX mattebb for testing, printf
 
-#define SDK_RENDER 1
+#define SDK_RENDER 0
 
 #define GLSL(version, shader)  "#version " #version "\n#extension GL_ARB_texture_rectangle : enable\n" #shader
 static const char* OculusWarpVert = GLSL(120,
@@ -253,7 +253,11 @@ bool ofxOculusDK2::setup(ofFbo::Settings& render_settings){
     eyeRenderViewport[1].Pos  = Vector2i((renderTargetSize.w + 1) / 2, 0);
     eyeRenderViewport[1].Size = eyeRenderViewport[0].Size;
     
-    unsigned int distortionCaps = ovrDistortionCap_Chromatic | ovrDistortionCap_TimeWarp | ovrDistortionCap_Vignette | ovrDistortionCap_Overdrive | ovrDistortionCap_SRGB;
+    unsigned int distortionCaps =	ovrDistortionCap_Chromatic |
+									ovrDistortionCap_TimeWarp |
+									ovrDistortionCap_Vignette |
+									ovrDistortionCap_Overdrive |
+									ovrDistortionCap_SRGB;
     
 #if SDK_RENDER
     // END mattebb SDK rendering test
@@ -261,8 +265,7 @@ bool ofxOculusDK2::setup(ofFbo::Settings& render_settings){
     config.Header.API = ovrRenderAPI_OpenGL;
     cout << "resolution " << hmd->Resolution.w << " -- " << hmd->Resolution.h << endl;
     const ovrSizei& sz = config.Header.BackBufferSize;
-    
-    
+
     config.Header.BackBufferSize = Sizei(hmd->Resolution.w, hmd->Resolution.h);
     //config.Header.RTSize = Sizei(hmd->Resolution.w, hmd->Resolution.h);
     config.Header.Multisample = 0; // configurable ?
@@ -288,7 +291,7 @@ bool ofxOculusDK2::setup(ofFbo::Settings& render_settings){
     cout << "eye tex 1 pos: " << EyeTexture[1].Header.RenderViewport.Pos.x << " " << EyeTexture[1].Header.RenderViewport.Pos.y << endl;
     cout << "eye tex 1 size: " << EyeTexture[1].Header.RenderViewport.Size.w << " " << EyeTexture[1].Header.RenderViewport.Size.h << endl;
     
-    int hmdCaps;
+    int hmdCaps = 0;
     hmdCaps |= ovrHmdCap_DynamicPrediction;
     hmdCaps |= ovrHmdCap_LowPersistence;
     
@@ -679,10 +682,12 @@ ofVec3f ofxOculusDK2::mousePosition3D(float z, bool considerHeadOrientation){
 	return screenToWorld(ofVec3f(ofGetMouseX(), ofGetMouseY(), z) );
 }
 
+
 float ofxOculusDK2::distanceFromMouse(ofVec3f worldPoint){
 	//map the current 2D position into oculus space
 	return distanceFromScreenPoint(worldPoint, ofVec3f(ofGetMouseX(), ofGetMouseY()) );
 }
+
 
 float ofxOculusDK2::distanceFromScreenPoint(ofVec3f worldPoint, ofVec2f screenPoint){
 	ofVec3f cursorRiftSpace = screenToOculus2D(screenPoint);
@@ -697,6 +702,7 @@ float ofxOculusDK2::distanceFromScreenPoint(ofVec3f worldPoint, ofVec2f screenPo
 void ofxOculusDK2::multBillboardMatrix(){
 	multBillboardMatrix(mousePosition3D());
 }
+
 
 void ofxOculusDK2::multBillboardMatrix(ofVec3f objectPosition, ofVec3f updirection){
 
@@ -714,83 +720,78 @@ void ofxOculusDK2::multBillboardMatrix(ofVec3f objectPosition, ofVec3f updirecti
 	// Perform the rotation.
 	ofRotate(angle, axis.x, axis.y, axis.z);
 }
+
+
 ofVec2f ofxOculusDK2::gazePosition2D(){
     ofVec3f angles = getOrientationQuat().getEuler();
 	return ofVec2f(ofMap(angles.y, 90, -90, 0, ofGetWidth()),
                    ofMap(angles.z, 90, -90, 0, ofGetHeight()));
 }
 
-#if SDK_RENDER
+
 void ofxOculusDK2::draw(){
-	static int done_debug=-1;
-    
+
 	if(!bSetup) return;
 	
 	if(!insideFrame) return;
 
-    if (done_debug==0) {
+    if ( ofGetKeyPressed('D') ) {
         ofPixels dp;
         renderTarget.readToPixels(dp);
         debugImage.setFromPixels(dp);
         debugImage.saveImage("debug.png");
-        done_debug=1;
     }
 
-	
-    ovrHmd_EndFrame(hmd, headPose, EyeTexture);
+	#if SDK_RENDER
 
-    if (!ofIsGLProgrammableRenderer())
-        glUseProgram(0);
-    
-    bUseOverlay = false;
-	bUseBackground = false;
-	insideFrame = false;
-}
-#else
-void ofxOculusDK2::draw(){
-	
-	if(!bSetup) return;
-	
-	if(!insideFrame) return;
+		ovrHmd_EndFrame(hmd, headPose, EyeTexture);
 
-	ovr_WaitTillTime(frameTiming.TimewarpPointSeconds);
-   
-	///JG START HERE 
-	// Prepare for distortion rendering. 
-	ofDisableDepthTest();
-    ofEnableAlphaBlending();
-	distortionShader.begin();
-	distortionShader.setUniformTexture("Texture", renderTarget.getTextureReference(), 1);
-	distortionShader.setUniform2f("TextureScale", 
-		renderTarget.getTextureReference().getWidth(), 
-		renderTarget.getTextureReference().getHeight());
+		if (!ofIsGLProgrammableRenderer())
+			glUseProgram(0);
 
-	for (int eyeIndex = 0; eyeIndex < 2; eyeIndex++) {
-		// Setup shader constants
-		distortionShader.setUniform2f("EyeToSourceUVScale", UVScaleOffset[eyeIndex][0].x, 
-															UVScaleOffset[eyeIndex][0].y);
-		distortionShader.setUniform2f("EyeToSourceUVOffset", UVScaleOffset[eyeIndex][1].x, 
-															 UVScaleOffset[eyeIndex][1].y);
-		ovrMatrix4f timeWarpMatrices[2];
-		ovrHmd_GetEyeTimewarpMatrices(hmd, (ovrEyeType) eyeIndex, headPose[eyeIndex], timeWarpMatrices);
-		distortionShader.setUniformMatrix4f("EyeRotationStart", toOf(timeWarpMatrices[0]) );
-		distortionShader.setUniformMatrix4f("EyeRotationEnd", toOf(timeWarpMatrices[1]) );
+	#else
 
-		eyeMesh[eyeIndex].draw();
-	}
-	distortionShader.end();
-	
-	/////////////////////
-	ovrHmd_EndFrameTiming(hmd);
-    
+		ovr_WaitTillTime(frameTiming.TimewarpPointSeconds);
 
-	ofEnableDepthTest();
+//		///JG START HERE
+//		// Prepare for distortion rendering.
+		ofDisableDepthTest();
+		ofEnableAlphaBlending();
+		distortionShader.begin();
+		distortionShader.setUniformTexture("Texture", renderTarget.getTextureReference(), 1);
+		distortionShader.setUniform2f("TextureScale",
+									  renderTarget.getTextureReference().getWidth(),
+									  renderTarget.getTextureReference().getHeight());
+
+		for (int eyeIndex = 0; eyeIndex < 2; eyeIndex++) {
+			// Setup shader constants
+			distortionShader.setUniform2f("EyeToSourceUVScale",
+										  UVScaleOffset[eyeIndex][0].x,
+										  UVScaleOffset[eyeIndex][0].y);
+			distortionShader.setUniform2f("EyeToSourceUVOffset",
+										  UVScaleOffset[eyeIndex][1].x,
+										  UVScaleOffset[eyeIndex][1].y);
+			ovrMatrix4f timeWarpMatrices[2];
+
+			ovrHmd_GetEyeTimewarpMatrices(hmd, (ovrEyeType) eyeIndex, headPose[eyeIndex], timeWarpMatrices);
+			distortionShader.setUniformMatrix4f("EyeRotationStart", toOf(timeWarpMatrices[0]) );
+			distortionShader.setUniformMatrix4f("EyeRotationEnd", toOf(timeWarpMatrices[1]) );
+
+			eyeMesh[eyeIndex].draw();
+		}
+		distortionShader.end();
+
+		/////////////////////
+		ovrHmd_EndFrameTiming(hmd);
+
+		//renderTarget.draw(0,0);
+
+	#endif
 
 	bUseOverlay = false;
 	bUseBackground = false;
 	insideFrame = false;
 }
-#endif
 
 void ofxOculusDK2::dismissSafetyWarning(void) {
     ovrHmd_DismissHSWDisplay(hmd);

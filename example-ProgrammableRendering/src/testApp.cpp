@@ -92,6 +92,9 @@ void testApp::setupSpheres() {
 //--------------------------------------------------------------
 void testApp::draw()
 {
+
+	float t = ofGetElapsedTimef();
+
 	if(oculusRift.isSetup()){
 		if(showOverlay){
 			
@@ -136,7 +139,8 @@ void testApp::draw()
 		drawScene();
 		cam.end();
 	}
-	
+	cout << (ofGetElapsedTimef() - t) * 1000.0 << endl;
+
 }
 
 //--------------------------------------------------------------

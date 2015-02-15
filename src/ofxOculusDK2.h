@@ -27,7 +27,7 @@ using namespace OVR::CAPI;
 #include "Sensors/OVR_DeviceConstants.h"
 #include <iostream>
 
-
+#include "ofxTimeMeasurements.h"
 
 class ofxOculusDK2
 {

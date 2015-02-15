@@ -44,7 +44,7 @@ void testApp::setup()
     cam.setPosition(0, 50, 100);
     cam.lookAt(ofVec3f());
 
-    for(int i = 0; i < 100; i++){
+    for(int i = 0; i < 20; i++){
         DemoSphere d;
         d.color = ofColor(ofRandom(255),
                           ofRandom(255),
@@ -97,6 +97,7 @@ void testApp::update()
             demos[i].bGazeOver = (gazeDist < 25);
         }
     }
+
 }
 
 
@@ -104,6 +105,7 @@ void testApp::update()
 void testApp::draw()
 {
 
+	float t = ofGetElapsedTimef();
 
     if(oculusRift.isSetup()){
 
@@ -140,14 +142,13 @@ void testApp::draw()
         oculusRift.draw();
 		TS_STOP("draw Rift");
 
-
     }
     else{
         cam.begin();
         drawScene();
         cam.end();
     }
-
+	cout << (ofGetElapsedTimef() - t) * 1000.0 << endl;
 }
 
 //--------------------------------------------------------------
@@ -195,6 +196,7 @@ void testApp::drawScene()
 //--------------------------------------------------------------
 void testApp::keyPressed(int key)
 {
+
     if( key == 'f' )
     {
         //gotta toggle full screen for it to be right

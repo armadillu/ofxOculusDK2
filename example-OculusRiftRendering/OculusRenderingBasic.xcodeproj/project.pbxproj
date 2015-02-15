@@ -778,6 +778,7 @@
 					/Users/elias/Development/openFrameworks/addons/ofxOculusDK2/libs/LibOVR/Lib/MacOS/Release,
 				);
 				PRODUCT_NAME = OculusRenderingBasicDebug;
+				SDKROOT = macosx10.9;
 				USER_HEADER_SEARCH_PATHS = ../../../addons/ofxOsc/libs/oscpack/src/;
 				WRAPPER_EXTENSION = app;
 			};
@@ -866,6 +867,7 @@
 					/Users/elias/Development/openFrameworks/addons/ofxOculusDK2/libs/LibOVR/Lib/MacOS/Release,
 				);
 				PRODUCT_NAME = OculusRenderingBasic;
+				SDKROOT = macosx10.9;
 				USER_HEADER_SEARCH_PATHS = ../../../addons/ofxOsc/libs/oscpack/src/;
 				WRAPPER_EXTENSION = app;
 			};

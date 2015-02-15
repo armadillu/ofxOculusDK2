@@ -11,6 +11,7 @@
 		647F8CA1199A793F006A51EB /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 647F8CA0199A793F006A51EB /* CoreVideo.framework */; };
 		647F8DDF199AA4F1006A51EB /* ofxOculusDK2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 647F8D96199AA4F1006A51EB /* ofxOculusDK2.cpp */; };
 		BBAB23CB13894F3D00AA2426 /* GLUT.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = BBAB23BE13894E4700AA2426 /* GLUT.framework */; };
+		BBCAC9631A901E4800D0CD48 /* ofxTimeMeasurements.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BBCAC95F1A901E4800D0CD48 /* ofxTimeMeasurements.cpp */; };
 		E4328149138ABC9F0047C5CB /* openFrameworksDebug.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E4328148138ABC890047C5CB /* openFrameworksDebug.a */; };
 		E45BE97B0E8CC7DD009D7055 /* AGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E45BE9710E8CC7DD009D7055 /* AGL.framework */; };
 		E45BE97C0E8CC7DD009D7055 /* ApplicationServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E45BE9720E8CC7DD009D7055 /* ApplicationServices.framework */; };
@@ -65,6 +66,9 @@
 		647F8D96199AA4F1006A51EB /* ofxOculusDK2.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ofxOculusDK2.cpp; sourceTree = "<group>"; };
 		647F8D97199AA4F1006A51EB /* ofxOculusDK2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ofxOculusDK2.h; sourceTree = "<group>"; };
 		BBAB23BE13894E4700AA2426 /* GLUT.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLUT.framework; path = ../../../libs/glut/lib/osx/GLUT.framework; sourceTree = "<group>"; };
+		BBCAC95F1A901E4800D0CD48 /* ofxTimeMeasurements.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = ofxTimeMeasurements.cpp; sourceTree = "<group>"; };
+		BBCAC9601A901E4800D0CD48 /* ofxTimeMeasurements.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ofxTimeMeasurements.h; sourceTree = "<group>"; };
+		BBCAC9621A901E4800D0CD48 /* tree.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = tree.h; sourceTree = "<group>"; };
 		E4328143138ABC890047C5CB /* openFrameworksLib.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = openFrameworksLib.xcodeproj; path = ../../../libs/openFrameworksCompiled/project/osx/openFrameworksLib.xcodeproj; sourceTree = SOURCE_ROOT; };
 		E45BE9710E8CC7DD009D7055 /* AGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AGL.framework; path = /System/Library/Frameworks/AGL.framework; sourceTree = "<absolute>"; };
 		E45BE9720E8CC7DD009D7055 /* ApplicationServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ApplicationServices.framework; path = /System/Library/Frameworks/ApplicationServices.framework; sourceTree = "<absolute>"; };
@@ -135,6 +139,7 @@
 		BB4B014C10F69532006C3DED /* addons */ = {
 			isa = PBXGroup;
 			children = (
+				BBCAC95D1A901E4800D0CD48 /* ofxTimeMeasurements */,
 				647F8CA2199AA4F1006A51EB /* ofxOculusDK2 */,
 			);
 			name = addons;
@@ -167,6 +172,34 @@
 				BBAB23BE13894E4700AA2426 /* GLUT.framework */,
 			);
 			name = "3rd party frameworks";
+			sourceTree = "<group>";
+		};
+		BBCAC95D1A901E4800D0CD48 /* ofxTimeMeasurements */ = {
+			isa = PBXGroup;
+			children = (
+				BBCAC95E1A901E4800D0CD48 /* src */,
+				BBCAC9611A901E4800D0CD48 /* lib */,
+			);
+			name = ofxTimeMeasurements;
+			sourceTree = "<group>";
+		};
+		BBCAC95E1A901E4800D0CD48 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				BBCAC95F1A901E4800D0CD48 /* ofxTimeMeasurements.cpp */,
+				BBCAC9601A901E4800D0CD48 /* ofxTimeMeasurements.h */,
+			);
+			name = src;
+			path = ../../../../_Addons/ofxTimeMeasurements/src;
+			sourceTree = "<group>";
+		};
+		BBCAC9611A901E4800D0CD48 /* lib */ = {
+			isa = PBXGroup;
+			children = (
+				BBCAC9621A901E4800D0CD48 /* tree.h */,
+			);
+			name = lib;
+			path = ../../../../_Addons/ofxTimeMeasurements/lib;
 			sourceTree = "<group>";
 		};
 		E4328144138ABC890047C5CB /* Products */ = {
@@ -306,6 +339,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				647F8DDF199AA4F1006A51EB /* ofxOculusDK2.cpp in Sources */,
+				BBCAC9631A901E4800D0CD48 /* ofxTimeMeasurements.cpp in Sources */,
 				E4B69E200A3A1BDC003C02F2 /* main.cpp in Sources */,
 				E4B69E210A3A1BDC003C02F2 /* testApp.cpp in Sources */,
 			);
@@ -398,9 +432,9 @@
 				INFOPLIST_FILE = "openFrameworks-Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
 				LIBRARY_SEARCH_PATHS = "";
-				OFX_OCULUSRIFT_LIBS = "\"$(ADDONS_PATH)/ofxOculusDK2/libs/LibOVR/Lib/Mac/Release/libovr.a\"";
 				PRODUCT_NAME = OculusProgrammableRenderingDebug;
 				SDKROOT = macosx10.9;
+				USER_HEADER_SEARCH_PATHS = "";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -422,9 +456,9 @@
 				INFOPLIST_FILE = "openFrameworks-Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
 				LIBRARY_SEARCH_PATHS = "";
-				OFX_OCULUSRIFT_LIBS = "\"$(ADDONS_PATH)/ofxOculusDK2/libs/LibOVR/Lib/Mac/Release/libovr.a\"";
 				PRODUCT_NAME = OculusProgrammableRendering;
 				SDKROOT = macosx10.9;
+				USER_HEADER_SEARCH_PATHS = "";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;
