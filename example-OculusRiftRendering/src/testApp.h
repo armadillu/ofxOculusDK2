@@ -50,6 +50,7 @@ public:
 	//RUI params
 
 	bool debugJoystick;
+	float joystickGain;
     float hudZ;
     int hudW, hudH;
 

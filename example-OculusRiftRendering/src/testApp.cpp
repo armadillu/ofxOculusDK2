@@ -25,6 +25,7 @@ void testApp::setup()
     RUI_SHARE_PARAM(hudZ, -1300, 200);
     RUI_NEW_GROUP("JOYSTICK");
 	RUI_SHARE_PARAM(debugJoystick);
+	RUI_SHARE_PARAM(joystickGain, 0, 0.2);
 
 	RUI_NEW_GROUP("MODEL");
 	RUI_SHARE_PARAM(modelScale, 0.001, 1.0);
@@ -92,23 +93,42 @@ void testApp::setup()
 
 void testApp::appplyJoystickToCam(ofCamera & camera){
 
-	float gain = 0.2;
-	ofVec3f pos = camera.getPosition();
+	float th = 0.2;
 	int joystickID = 0;
 	float z = ofxGLFWJoystick::one().getAxisValue(0, joystickID);
 	float x = ofxGLFWJoystick::one().getAxisValue(1, joystickID);
-	float th = 0.3;
-	if(fabs(z) > th){
-		pos.z += gain * z;
-	}
 	if(fabs(x) > th){
-		pos.x += gain * x;
+		camera.dolly(joystickGain * x);
+	}
+	if(fabs(z) > th){
+		camera.truck(joystickGain * z);
 	}
 	//these are -1 when resting
 	float rightTrigger = ofMap(ofxGLFWJoystick::one().getAxisValue(5, joystickID), -1, 1, 0, 1);
 	float leftTrigger = ofMap(ofxGLFWJoystick::one().getAxisValue(4, joystickID), -1, 1, 0, 1);
-	pos.y += gain * (rightTrigger - leftTrigger); //right increases y, left decreases y
-	camera.setPosition(pos);
+	float y = (rightTrigger - leftTrigger); //right increases y, left decreases y
+	if(fabs(y) > th){
+		camera.boom(joystickGain * y);
+	}
+
+	ofVec3f currLookTarget = camera.getPosition() + camera.getLookAtDir();
+	camera.getLookAtDir();
+
+	float dx = ofxGLFWJoystick::one().getAxisValue(2, joystickID);;
+	float dy = ofxGLFWJoystick::one().getAxisValue(3, joystickID);;
+
+
+	if(fabs(dx) > th || fabs(dy) > th){
+		float lookG = 3;
+		ofVec3f currentUp = camera.getUpDir();
+		currLookTarget.rotate(-dx * lookG, camera.getPosition(), currentUp);
+		ofVec3f sideVec = (currentUp).getCrossed(currLookTarget - camera.getPosition());
+		camera.lookAt(currLookTarget, currentUp);
+		currLookTarget.rotate(dy * lookG, camera.getPosition(), sideVec);
+		currentUp = ( currLookTarget - camera.getPosition() ).getCrossed(sideVec);
+		camera.lookAt(currLookTarget, currentUp);
+	}
+
 }
 
 
@@ -234,7 +254,6 @@ void testApp::drawScene(){
 		model->drawFaces();
 		ofPopMatrix();
 	}
-
 
     ofDrawAxis(0.2);
 
