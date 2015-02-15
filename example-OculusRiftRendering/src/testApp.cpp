@@ -8,8 +8,8 @@ void testApp::setup()
     ofBackground(0);
     //ofSetLogLevel( OF_LOG_VERBOSE );
     ofSetVerticalSync( true );
-    ofSetFrameRate(75);
-    ofSetFullscreen(true);
+    ofSetFrameRate(77);
+    ofSetFullscreen(false);
 
     RUI_SETUP();
     hudW = 320;
@@ -17,13 +17,15 @@ void testApp::setup()
     hudZ = -230;
     RUI_GET_INSTANCE()->setAutoDraw(false);
     RUI_GET_INSTANCE()->setShowUIDuringEdits(true); //always show UI/HUD, even when editing
-    RUI_NEW_GROUP("OVERLAYfg");
+    RUI_NEW_GROUP("OVERLAY");
 	RUI_SHARE_PARAM(showOverlay);
 	RUI_SHARE_PARAM(showOverlay);
 	RUI_SHARE_PARAM_WCN("unlockHudFromView", oculusRift.lockView);
     RUI_SHARE_PARAM(hudW, 200, 1920);
     RUI_SHARE_PARAM(hudH, 120, 1080);
     RUI_SHARE_PARAM(hudZ, -1300, 200);
+    RUI_NEW_GROUP("JOYSTICK");
+	RUI_SHARE_PARAM(debugJoystick);
 
     RUI_LOAD_FROM_XML();
 
@@ -41,10 +43,12 @@ void testApp::setup()
     oculusRift.setup();
 	oculusRift.dismissSafetyWarning();
 
-    cam.setPosition(0, 50, 100);
-    cam.lookAt(ofVec3f());
+	cam.setAutoDistance(false);
+	//https://github.com/obviousjim/ofxOculusDK2/commit/1a71a4322ea048cef07d4bb65db6191abcb751a6
+	cam.setPosition(0,20,0);
+    cam.lookAt(ofVec3f(20, 10.0, 0.0));
 
-    for(int i = 0; i < 20; i++){
+    for(int i = 0; i < 50; i++){
         DemoSphere d;
         d.color = ofColor(ofRandom(255),
                           ofRandom(255),
@@ -67,14 +71,31 @@ void testApp::setup()
     TIME_SAMPLE_GET_INSTANCE()->setDesiredFrameRate(75);
 
 //	//enable mouse;
-//    cam.begin();
-//    cam.end();
+    cam.begin();
+    cam.end();
+}
+
+void testApp::appplyJoystickToCam(ofCamera & camera){
+	ofVec3f pos = camera.getPosition();
+	int joystickID = 0;
+	pos.z += ofxGLFWJoystick::one().getAxisValue(0, joystickID);
+	pos.x += ofxGLFWJoystick::one().getAxisValue(1, joystickID);
+	//these are -1 when resting
+	float rightTrigger = ofMap(ofxGLFWJoystick::one().getAxisValue(5, joystickID), -1, 1, 0, 1);
+	float leftTrigger = ofMap(ofxGLFWJoystick::one().getAxisValue(4, joystickID), -1, 1, 0, 1);
+	//cout << leftTrigger << ", " << rightTrigger << endl;
+	pos.y += rightTrigger - leftTrigger; //right increases y, left decreases y
+	camera.setPosition(pos);
 }
 
 
-//--------------------------------------------------------------
 void testApp::update()
 {
+
+	ofxGLFWJoystick::one().update();
+
+
+
     for(int i = 0; i < demos.size(); i++){
         demos[i].floatPos.y = ofSignedNoise(ofGetElapsedTimef()/10.0,
 											demos[i].pos.x/100.0,
@@ -111,6 +132,8 @@ void testApp::draw()
 
         if(showOverlay){
 			TS_START_ACC("overlay");
+			ofSetColor(255);
+			ofDisableLighting();
             oculusRift.beginOverlay(hudZ, hudW, hudH);
             ofRectangle overlayRect = oculusRift.getOverlayRectangle();
             TIME_SAMPLE_GET_INSTANCE()->setPlotBaseY(hudH);
@@ -118,9 +141,15 @@ void testApp::draw()
 
             TIME_SAMPLE_GET_INSTANCE()->draw(0,0);
 
+			if(debugJoystick){
+				ofxGLFWJoystick::one().drawDebug(0,200);
+			}
+
+
 			TS_START_ACC("overlay");
             RUI_GET_INSTANCE()->draw(20, hudH - 20);
             oculusRift.endOverlay();
+			ofEnableLighting();
 			TS_STOP_ACC("overlay");
         }
 
@@ -137,7 +166,6 @@ void testApp::draw()
         oculusRift.endRightEye();
 
         glDisable(GL_DEPTH_TEST);
-
         TS_STOP("eyes Draw");
 
 		TS_START("draw Rift");
@@ -154,13 +182,12 @@ void testApp::draw()
 }
 
 //--------------------------------------------------------------
-void testApp::drawScene()
-{
+void testApp::drawScene(){
 
 	TS_START_ACC("drawScene");
     ofPushMatrix();
     ofRotate(90, 0, 0, -1);
-    ofDrawGridPlane(2500.0f, 50.0f, false );
+    ofDrawGridPlane(300.0f, 30.0f, false );
     ofPopMatrix();
     light.enable();
 

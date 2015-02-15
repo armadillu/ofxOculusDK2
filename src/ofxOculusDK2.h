@@ -53,7 +53,7 @@ class ofxOculusDK2
     void endBackground();
 
 	//draw overlay, before rendering eyes
-	void beginOverlay(float overlayZDistance = -150, int width = 256, int height = 256);
+	void beginOverlay(int overlayZDistance = -150, int width = 256, int height = 256);
     void endOverlay();
 
 	void beginLeftEye();
@@ -116,60 +116,59 @@ class ofxOculusDK2
     
 	ofRectangle getOculusViewport();
 	bool isHD();
+
 	//allows you to disable moving the camera based on inner ocular distance
 	bool applyTranslation;
 
   private:
-	bool bSetup;
-    bool insideFrame;
-    bool bUsingDebugHmd;
-    unsigned startTrackingCaps;
-    
-    bool bHmdSettingsChanged;
-    bool bPositionTrackingEnabled;
-    bool bLowPersistence;
-    bool bDynamicPrediction;
-    
-	bool bUsePredictedOrientation;
-	bool bUseBackground;
-	bool bUseOverlay;
-	float overlayZDistance;
 
-    ovrHmd              hmd;
-	ovrFovPort			eyeFov[2];
-	ovrEyeRenderDesc	eyeRenderDesc[2];
-	ovrRecti			eyeRenderViewport[2];
-	ovrVector2f			UVScaleOffset[2][2];
-	ofVboMesh			eyeMesh[2];
-	ovrPosef headPose[2];
-	ovrFrameTiming frameTiming;// = ovrHmd_BeginFrameTiming(hmd, 0);
-    unsigned int frameIndex;
+	bool					bSetup;
+    bool					insideFrame;
+    bool					bUsingDebugHmd;
+    unsigned				startTrackingCaps;
     
-    ovrTexture          EyeTexture[2];
+    bool					bHmdSettingsChanged;
+    bool					bPositionTrackingEnabled;
+    bool					bLowPersistence;
+    bool					bDynamicPrediction;
     
-    ovrVector3f hmdToEyeViewOffsets[2];
+	bool					bUsePredictedOrientation;
+	bool					bUseBackground;
+	bool					bUseOverlay;
+	int						overlayZDistance;
+
+    ovrHmd					hmd;
+	ovrFovPort				eyeFov[2];
+	ovrEyeRenderDesc		eyeRenderDesc[2];
+	ovrRecti				eyeRenderViewport[2];
+	ovrVector2f				UVScaleOffset[2][2];
+	ofVboMesh				eyeMesh[2];
+	ovrPosef				headPose[2];
+	ovrFrameTiming			frameTiming;// = ovrHmd_BeginFrameTiming(hmd, 0);
+    unsigned int			frameIndex;
+    
+    ovrTexture				EyeTexture[2];
+    
+    ovrVector3f				hmdToEyeViewOffsets[2];
 
 	void initializeClientRenderer();
 
-    Sizei               windowSize;
+    Sizei					windowSize;
     
 	OVR::Util::Render::StereoConfig stereo;
-	float renderScale;
-	ofMesh overlayMesh;
-	ofMatrix4x4 orientationMatrix;
-	
-	ofVboMesh leftEyeMesh;
-	ofVboMesh rightEyeMesh;
+	float					renderScale;
 
-    Sizei renderTargetSize;
-	ofFbo renderTarget;
-    ofFbo backgroundTarget;
-	ofFbo overlayTarget;
-	ofShader distortionShader;
-    
-    ofShader debugShader;   // XXX mattebb
-    ofMesh debugMesh;
-    ofImage debugImage;
+	ofVboMesh				overlayMesh;
+	ofMatrix4x4				orientationMatrix;
+	
+	ofVboMesh				leftEyeMesh;
+	ofVboMesh				rightEyeMesh;
+
+    Sizei					renderTargetSize;
+	ofFbo					renderTarget;
+    ofFbo					backgroundTarget;
+	ofFbo					overlayTarget;
+	ofShader				distortionShader;
     
 	void setupEyeParams(ovrEyeType eye);
 	void setupShaderUniforms(ovrEyeType eye);

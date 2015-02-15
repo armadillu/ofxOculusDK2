@@ -34,6 +34,7 @@
 		BB43C0CC1A87F5E700AE3B21 /* uriencode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BB43C0C61A87F5E700AE3B21 /* uriencode.cpp */; };
 		BB43C0D11A87F6A500AE3B21 /* ofxHistoryPlot.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BB43C0CF1A87F6A500AE3B21 /* ofxHistoryPlot.cpp */; };
 		BBAB23CB13894F3D00AA2426 /* GLUT.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = BBAB23BE13894E4700AA2426 /* GLUT.framework */; };
+		BBC02D131A9053A0006BFF3C /* ofxGLFWJoystick.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BBC02D111A9053A0006BFF3C /* ofxGLFWJoystick.cpp */; };
 		E4328149138ABC9F0047C5CB /* openFrameworksDebug.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E4328148138ABC890047C5CB /* openFrameworksDebug.a */; };
 		E45BE97B0E8CC7DD009D7055 /* AGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E45BE9710E8CC7DD009D7055 /* AGL.framework */; };
 		E45BE97C0E8CC7DD009D7055 /* ApplicationServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E45BE9720E8CC7DD009D7055 /* ApplicationServices.framework */; };
@@ -146,6 +147,8 @@
 		BB43C0CF1A87F6A500AE3B21 /* ofxHistoryPlot.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = ofxHistoryPlot.cpp; sourceTree = "<group>"; };
 		BB43C0D01A87F6A500AE3B21 /* ofxHistoryPlot.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ofxHistoryPlot.h; sourceTree = "<group>"; };
 		BBAB23BE13894E4700AA2426 /* GLUT.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLUT.framework; path = ../../../libs/glut/lib/osx/GLUT.framework; sourceTree = "<group>"; };
+		BBC02D111A9053A0006BFF3C /* ofxGLFWJoystick.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = ofxGLFWJoystick.cpp; sourceTree = "<group>"; };
+		BBC02D121A9053A0006BFF3C /* ofxGLFWJoystick.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ofxGLFWJoystick.h; sourceTree = "<group>"; };
 		E4328143138ABC890047C5CB /* openFrameworksLib.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = openFrameworksLib.xcodeproj; path = ../../../libs/openFrameworksCompiled/project/osx/openFrameworksLib.xcodeproj; sourceTree = SOURCE_ROOT; };
 		E45BE9710E8CC7DD009D7055 /* AGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AGL.framework; path = /System/Library/Frameworks/AGL.framework; sourceTree = "<absolute>"; };
 		E45BE9720E8CC7DD009D7055 /* ApplicationServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ApplicationServices.framework; path = /System/Library/Frameworks/ApplicationServices.framework; sourceTree = "<absolute>"; };
@@ -421,6 +424,7 @@
 		BB4B014C10F69532006C3DED /* addons */ = {
 			isa = PBXGroup;
 			children = (
+				BBC02D0F1A9053A0006BFF3C /* ofxGLFWJoystick */,
 				BB43C0CD1A87F6A500AE3B21 /* ofxHistoryPlot */,
 				BB43C0B71A87F5E700AE3B21 /* ofxRemoteUI */,
 				BB43C0B01A87F5E300AE3B21 /* ofxTimeMeasurements */,
@@ -458,6 +462,24 @@
 				BBAB23BE13894E4700AA2426 /* GLUT.framework */,
 			);
 			name = "3rd party frameworks";
+			sourceTree = "<group>";
+		};
+		BBC02D0F1A9053A0006BFF3C /* ofxGLFWJoystick */ = {
+			isa = PBXGroup;
+			children = (
+				BBC02D101A9053A0006BFF3C /* src */,
+			);
+			name = ofxGLFWJoystick;
+			sourceTree = "<group>";
+		};
+		BBC02D101A9053A0006BFF3C /* src */ = {
+			isa = PBXGroup;
+			children = (
+				BBC02D111A9053A0006BFF3C /* ofxGLFWJoystick.cpp */,
+				BBC02D121A9053A0006BFF3C /* ofxGLFWJoystick.h */,
+			);
+			name = src;
+			path = ../../../../_Addons/ofxGLFWJoystick/src;
 			sourceTree = "<group>";
 		};
 		E4328144138ABC890047C5CB /* Products */ = {
@@ -597,6 +619,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				BB43C0A81A87F5D200AE3B21 /* ofxOscSender.cpp in Sources */,
+				BBC02D131A9053A0006BFF3C /* ofxGLFWJoystick.cpp in Sources */,
 				BB43C0C81A87F5E700AE3B21 /* ofxRemoteUI.cpp in Sources */,
 				BB43C0A91A87F5D200AE3B21 /* IpEndpointName.cpp in Sources */,
 				BB43C0AD1A87F5D200AE3B21 /* OscPrintReceivedElements.cpp in Sources */,

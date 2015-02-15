@@ -2,6 +2,7 @@
 
 #include "ofMain.h"
 #include "ofxOculusDK2.h"
+#include "ofxGLFWJoystick.h"
 
 typedef struct{
     ofColor color;
@@ -21,6 +22,7 @@ public:
     void draw();
 
     void drawScene();
+	void appplyJoystickToCam(ofCamera & cam);
 
     void keyPressed(int key);
     void keyReleased(int key);
@@ -48,6 +50,7 @@ public:
 
     ofVec3f cursorGaze;
 
+	bool debugJoystick;
     float hudZ;
     int hudW, hudH;
 };

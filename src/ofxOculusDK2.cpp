@@ -146,7 +146,7 @@ ofxOculusDK2::ofxOculusDK2(){
 	bUsePredictedOrientation = true;
 	bUseOverlay = false;
 	bUseBackground = false;
-	overlayZDistance = -200;
+	overlayZDistance = 0;
 	oculusScreenSpaceScale = 2;
 	applyTranslation = true;
 }
@@ -292,7 +292,7 @@ bool ofxOculusDK2::setup(ofFbo::Settings& render_settings){
     
     int hmdCaps = 0;
     hmdCaps |= ovrHmdCap_DynamicPrediction;
-    hmdCaps |= ovrHmdCap_LowPersistence;
+    //hmdCaps |= ovrHmdCap_LowPersistence;
     
     ovrHmd_SetEnabledCaps(hmd, hmdCaps);
     
@@ -489,13 +489,18 @@ void ofxOculusDK2::endBackground(){
     backgroundTarget.end();
 }
 
-void ofxOculusDK2::beginOverlay(float overlayZ, int width, int height){
+void ofxOculusDK2::beginOverlay(int overlayZ, int width, int height){
 	bUseOverlay = true;
-	overlayZDistance = overlayZ;
-	
-	if(overlayTarget.getWidth() != width || overlayTarget.getHeight() != height){
-		overlayTarget.allocate(width, height, GL_RGBA, 4);
 
+	static bool refresh = true;
+
+	if(overlayTarget.getWidth() != width || overlayTarget.getHeight() != height || refresh == true){
+		overlayTarget.allocate(width, height, GL_RGBA, 0);
+		refresh = true;
+	}
+
+	if(overlayZDistance != overlayZ || refresh == true){
+		overlayZDistance = overlayZ;
 		overlayMesh.clear();
 		ofRectangle overlayrect = ofRectangle(-width/2,-height/2,width,height);
 		overlayMesh.addVertex( ofVec3f(overlayrect.getMinX(), overlayrect.getMinY(), overlayZ) );
@@ -516,6 +521,7 @@ void ofxOculusDK2::beginOverlay(float overlayZ, int width, int height){
 	
     ofPushView();
     ofPushMatrix();
+	refresh = false;
 }
 
 void ofxOculusDK2::endOverlay(){
@@ -543,7 +549,6 @@ void ofxOculusDK2::beginLeftEye(){
 	ofPushMatrix();
     
 	setupEyeParams(ovrEye_Left);
-    
 }
 
 void ofxOculusDK2::endLeftEye(){
@@ -738,6 +743,7 @@ void ofxOculusDK2::draw(){
 		saveFrame = false;
         ofPixels dp;
         renderTarget.readToPixels(dp);
+		ofImage debugImage;
         debugImage.setFromPixels(dp);
         debugImage.saveImage("debug.png");
     }
