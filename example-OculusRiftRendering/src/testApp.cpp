@@ -52,7 +52,7 @@ void testApp::setup()
 	cam.setPosition(1,0.5,0);
     cam.getTarget().setPosition(ofVec3f(0, 0, 0));
 
-    for(int i = 0; i < 250; i++){
+    for(int i = 0; i < 10; i++){
         DemoSphere d;
         d.color = ofColor(ofRandom(255),
                           ofRandom(255),
@@ -237,7 +237,6 @@ void testApp::drawScene(){
 
 
     ofDrawAxis(0.2);
-//	ofDrawCone(0, 5, 0, 5, -10);
 
     //billboard and draw the mouse
     if(oculusRift.isSetup()){
@@ -254,6 +253,7 @@ void testApp::drawScene(){
 //--------------------------------------------------------------
 void testApp::keyPressed(int key)
 {
+	oculusRift.dismissSafetyWarning();
 
     if( key == 'f' )
     {

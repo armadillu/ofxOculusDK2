@@ -165,10 +165,15 @@ ofxOculusDK2::~ofxOculusDK2(){
 
 bool ofxOculusDK2::setup(){
 	ofFbo::Settings settings;
-	settings.numSamples = 4;
 	settings.internalformat = GL_RGBA;
     settings.useDepth = true;
+#if SDK_RENDER
+	settings.numSamples = 0;
+    settings.textureTarget = GL_TEXTURE_2D;
+#else
+	settings.numSamples = 4;
     settings.textureTarget = GL_TEXTURE_RECTANGLE_ARB;
+#endif
     settings.minFilter = GL_LINEAR;
     settings.maxFilter = GL_LINEAR;
     settings.wrapModeHorizontal = GL_CLAMP_TO_EDGE;
