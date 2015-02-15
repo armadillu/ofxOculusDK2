@@ -105,22 +105,24 @@ void testApp::update()
 void testApp::draw()
 {
 
-	float t = ofGetElapsedTimef();
+	//float t = ofGetElapsedTimef();
 
     if(oculusRift.isSetup()){
 
-		TS_START("overlay");
         if(showOverlay){
-
+			TS_START_ACC("overlay");
             oculusRift.beginOverlay(hudZ, hudW, hudH);
             ofRectangle overlayRect = oculusRift.getOverlayRectangle();
             TIME_SAMPLE_GET_INSTANCE()->setPlotBaseY(hudH);
+			TS_STOP_ACC("overlay");
+
             TIME_SAMPLE_GET_INSTANCE()->draw(0,0);
 
+			TS_START_ACC("overlay");
             RUI_GET_INSTANCE()->draw(20, hudH - 20);
             oculusRift.endOverlay();
+			TS_STOP_ACC("overlay");
         }
-		TS_STOP("overlay");
 
         ofSetColor(255);
         glEnable(GL_DEPTH_TEST);
@@ -148,7 +150,7 @@ void testApp::draw()
         drawScene();
         cam.end();
     }
-	cout << (ofGetElapsedTimef() - t) * 1000.0 << endl;
+	//cout << (ofGetElapsedTimef() - t) * 1000.0 << endl;
 }
 
 //--------------------------------------------------------------
