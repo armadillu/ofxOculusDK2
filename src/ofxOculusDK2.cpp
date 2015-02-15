@@ -10,8 +10,6 @@
 
 #include "ofxOculusDK2.h"
 
-#include <stdio.h>  // XXX mattebb for testing, printf
-
 #define SDK_RENDER 0
 
 #define GLSL(version, shader)  "#version " #version "\n#extension GL_ARB_texture_rectangle : enable\n" #shader
@@ -292,7 +290,7 @@ bool ofxOculusDK2::setup(ofFbo::Settings& render_settings){
     
     int hmdCaps = 0;
     hmdCaps |= ovrHmdCap_DynamicPrediction;
-    //hmdCaps |= ovrHmdCap_LowPersistence;
+    hmdCaps |= ovrHmdCap_LowPersistence;
     
     ovrHmd_SetEnabledCaps(hmd, hmdCaps);
     

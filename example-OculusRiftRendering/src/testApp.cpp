@@ -16,9 +16,8 @@ void testApp::setup()
     hudH = 240;
     hudZ = -230;
     RUI_GET_INSTANCE()->setAutoDraw(false);
-    RUI_GET_INSTANCE()->setShowUIDuringEdits(true); //always show UI/HUD, even when editing
+    //RUI_GET_INSTANCE()->setShowUIDuringEdits(true); //always show UI/HUD, even when editing
     RUI_NEW_GROUP("OVERLAY");
-	RUI_SHARE_PARAM(showOverlay);
 	RUI_SHARE_PARAM(showOverlay);
 	RUI_SHARE_PARAM_WCN("unlockHudFromView", oculusRift.lockView);
     RUI_SHARE_PARAM(hudW, 200, 1920);
@@ -26,6 +25,10 @@ void testApp::setup()
     RUI_SHARE_PARAM(hudZ, -1300, 200);
     RUI_NEW_GROUP("JOYSTICK");
 	RUI_SHARE_PARAM(debugJoystick);
+
+	RUI_NEW_GROUP("MODEL");
+	RUI_SHARE_PARAM(modelScale, 0.001, 1.0);
+
 
     RUI_LOAD_FROM_XML();
 
@@ -39,27 +42,31 @@ void testApp::setup()
 
     //glEnable(GL_FOG);
 
+
     oculusRift.baseCamera = &cam;
     oculusRift.setup();
 	oculusRift.dismissSafetyWarning();
 
 	cam.setAutoDistance(false);
 	//https://github.com/obviousjim/ofxOculusDK2/commit/1a71a4322ea048cef07d4bb65db6191abcb751a6
-	cam.setPosition(0,20,0);
-    cam.lookAt(ofVec3f(20, 10.0, 0.0));
+	cam.setPosition(1,0.5,0);
+    cam.getTarget().setPosition(ofVec3f(0, 0, 0));
 
-    for(int i = 0; i < 50; i++){
+    for(int i = 0; i < 250; i++){
         DemoSphere d;
         d.color = ofColor(ofRandom(255),
                           ofRandom(255),
                           ofRandom(255));
 
-        d.pos = ofVec3f(ofRandom(-500, 500),0,ofRandom(-500,500));
+		float rad = 2;
+        d.pos = ofVec3f(ofRandom(-rad, rad),
+						ofRandom(0, rad),
+						ofRandom(-rad,rad));
 
         d.floatPos.x = d.pos.x;
         d.floatPos.z = d.pos.z;
 
-        d.radius = 20;
+        d.radius = 0.02;
 
         d.bMouseOver = false;
         d.bGazeOver  = false;
@@ -67,40 +74,54 @@ void testApp::setup()
         demos.push_back(d);
     }
 
+	model = new ofxAssimpModelLoader();
+	model->loadModel("mario.3DS", true);
+	model->setPosition(0, 0, 0);
+	model->setRotation(0, 180, 1, 0, 0);
+	model->setRotation(0, 180, 0, 0, 1);
+	model->stopAllAnimations();
+
     TIME_SAMPLE_GET_INSTANCE()->setAutoDraw(false);
     TIME_SAMPLE_GET_INSTANCE()->setDesiredFrameRate(75);
+	TIME_SAMPLE_SET_ENABLED(false);
 
-//	//enable mouse;
-    cam.begin();
-    cam.end();
+//	enable mouse;
+	cam.begin();
+	cam.end();
 }
 
 void testApp::appplyJoystickToCam(ofCamera & camera){
+
+	float gain = 0.2;
 	ofVec3f pos = camera.getPosition();
 	int joystickID = 0;
-	pos.z += ofxGLFWJoystick::one().getAxisValue(0, joystickID);
-	pos.x += ofxGLFWJoystick::one().getAxisValue(1, joystickID);
+	float z = ofxGLFWJoystick::one().getAxisValue(0, joystickID);
+	float x = ofxGLFWJoystick::one().getAxisValue(1, joystickID);
+	float th = 0.3;
+	if(fabs(z) > th){
+		pos.z += gain * z;
+	}
+	if(fabs(x) > th){
+		pos.x += gain * x;
+	}
 	//these are -1 when resting
 	float rightTrigger = ofMap(ofxGLFWJoystick::one().getAxisValue(5, joystickID), -1, 1, 0, 1);
 	float leftTrigger = ofMap(ofxGLFWJoystick::one().getAxisValue(4, joystickID), -1, 1, 0, 1);
-	//cout << leftTrigger << ", " << rightTrigger << endl;
-	pos.y += rightTrigger - leftTrigger; //right increases y, left decreases y
+	pos.y += gain * (rightTrigger - leftTrigger); //right increases y, left decreases y
 	camera.setPosition(pos);
 }
 
 
-void testApp::update()
-{
+void testApp::update(){
 
 	ofxGLFWJoystick::one().update();
-
-
+	appplyJoystickToCam(cam);
 
     for(int i = 0; i < demos.size(); i++){
-        demos[i].floatPos.y = ofSignedNoise(ofGetElapsedTimef()/10.0,
-											demos[i].pos.x/100.0,
-											demos[i].pos.z/100.0,
-											demos[i].radius*100.0) * demos[i].radius*20.;
+        demos[i].floatPos.y = ofNoise(ofGetElapsedTimef()/10.0,
+											demos[i].pos.x,
+											demos[i].pos.z,
+											demos[i].radius);
 
     }
 
@@ -123,10 +144,7 @@ void testApp::update()
 
 
 //--------------------------------------------------------------
-void testApp::draw()
-{
-
-	//float t = ofGetElapsedTimef();
+void testApp::draw(){
 
     if(oculusRift.isSetup()){
 
@@ -178,18 +196,18 @@ void testApp::draw()
         drawScene();
         cam.end();
     }
-	//cout << (ofGetElapsedTimef() - t) * 1000.0 << endl;
 }
 
 //--------------------------------------------------------------
 void testApp::drawScene(){
 
-	TS_START_ACC("drawScene");
     ofPushMatrix();
-    ofRotate(90, 0, 0, -1);
-    ofDrawGridPlane(300.0f, 30.0f, false );
+	ofRotate(90, 0, 0, -1);
+    ofDrawGridPlane(4.0f, 8.0f, false );
     ofPopMatrix();
     light.enable();
+	light.setPosition(0, 100, 0);
+	light.draw();
 
     ofPushStyle();
     for(int i = 0; i < demos.size(); i++){
@@ -207,19 +225,30 @@ void testApp::drawScene(){
         ofPopMatrix();
     }
 
-    ofDrawAxis(50);
+	model->setScaleNomalization(false);
+	model->setScale(modelScale, modelScale, modelScale);
+	int n = 7;
+	for(int i = 0; i < n; i++){
+		ofPushMatrix();
+		ofTranslate( - n * 0.5 + i , 0, -0.5);
+		model->drawFaces();
+		ofPopMatrix();
+	}
+
+
+    ofDrawAxis(0.2);
+//	ofDrawCone(0, 5, 0, 5, -10);
 
     //billboard and draw the mouse
     if(oculusRift.isSetup()){
         ofPushMatrix();
         oculusRift.multBillboardMatrix();
         ofSetColor(255, 0, 0);
-        ofCircle(0,0,.5);
+        ofCircle(0,0,.1);
         ofPopMatrix();
     }
 
     ofPopStyle();
-	TS_STOP_ACC("drawScene");
 }
 
 //--------------------------------------------------------------
@@ -269,13 +298,13 @@ void testApp::keyReleased(int key)
 //--------------------------------------------------------------
 void testApp::mouseMoved(int x, int y)
 {
-	//   cursor2D.set(x, y, cursor2D.z);
+
 }
 
 //--------------------------------------------------------------
 void testApp::mouseDragged(int x, int y, int button)
 {
-	//    cursor2D.set(x, y, cursor2D.z);
+
 }
 
 //--------------------------------------------------------------

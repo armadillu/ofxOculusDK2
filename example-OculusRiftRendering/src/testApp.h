@@ -3,6 +3,7 @@
 #include "ofMain.h"
 #include "ofxOculusDK2.h"
 #include "ofxGLFWJoystick.h"
+#include "ofxAssimpModelLoader.h"
 
 typedef struct{
     ofColor color;
@@ -38,19 +39,18 @@ public:
 
     ofLight             light;
     ofEasyCam           cam;
-    bool showOverlay;
-    bool predictive;
+
+	bool				showOverlay;
+    bool				predictive;
+
     vector<DemoSphere> demos;
+	ofxAssimpModelLoader * model;
+	float modelScale;
 
-    ofVec3f cursor2D;
-    ofVec3f cursor3D;
-
-    ofVec3f cursorRift;
-    ofVec3f demoRift;
-
-    ofVec3f cursorGaze;
+	//RUI params
 
 	bool debugJoystick;
     float hudZ;
     int hudW, hudH;
+
 };
