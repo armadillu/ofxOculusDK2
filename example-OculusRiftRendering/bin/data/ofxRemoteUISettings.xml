@@ -10,7 +10,7 @@
 		<P name="hudZ" type="float">-380</P>
 		<P name="JOYSTICK" type="group"/>
 		<!-- # JOYSTICK ############################ -->
-		<P name="debugJoystick" type="bool">0</P>
+		<P name="debugJoystick" type="bool">1</P>
 		<P name="joystickGain" type="float">0.07</P>
 		<P name="MODEL" type="group"/>
 		<!-- # MODEL ############################ -->
